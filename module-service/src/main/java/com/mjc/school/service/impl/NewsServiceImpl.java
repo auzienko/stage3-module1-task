@@ -1,9 +1,10 @@
-package com.mjc.school.service;
+package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.impl.AuthorRepositoryImpl;
 import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
+import com.mjc.school.service.Service;
 import com.mjc.school.service.dto.NewsDtoResponse;
 import com.mjc.school.service.exception.*;
 import jakarta.validation.ConstraintViolation;
@@ -17,18 +18,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class NewsService implements Service<NewsDtoResponse> {
+public class NewsServiceImpl implements Service<NewsDtoResponse> {
     private final AuthorRepositoryImpl authorRepository;
     private final NewsRepositoryImpl newsRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public NewsService(AuthorRepositoryImpl authorRepository, NewsRepositoryImpl newsRepository) {
+    private final Validator validator;
+
+    public NewsServiceImpl(AuthorRepositoryImpl authorRepository, NewsRepositoryImpl newsRepository) {
         this.authorRepository = authorRepository;
         this.newsRepository = newsRepository;
+        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
     }
 
     @Override
-    public List<NewsDtoResponse> findAll() {
+    public List<NewsDtoResponse> readAll() {
 
         return newsRepository.readAll()
                 .stream()
@@ -37,7 +42,7 @@ public class NewsService implements Service<NewsDtoResponse> {
     }
 
     @Override
-    public NewsDtoResponse findById(Long id) {
+    public NewsDtoResponse readBy(Long id) {
         NewsModel news = newsRepository.readById(id);
         if (news.getId() == null) {
             throw new NewsNotFoundException();
@@ -63,7 +68,7 @@ public class NewsService implements Service<NewsDtoResponse> {
         if (added.getId() == null) {
             throw new NewsCreationException();
         }
-        return findById(added.getId());
+        return readBy(added.getId());
     }
 
     @Override
@@ -74,7 +79,7 @@ public class NewsService implements Service<NewsDtoResponse> {
         checkAuthorExist(object);
 
         NewsModel news = newsRepository.readById(object.getId());
-        if(news.getId() == null) {
+        if (news.getId() == null) {
             throw new NewsNotFoundException();
         }
 
@@ -88,11 +93,11 @@ public class NewsService implements Service<NewsDtoResponse> {
             throw new NewsUpdateException();
         }
 
-        return findById(updated.getId());
+        return readBy(updated.getId());
     }
 
     @Override
-    public boolean remove(Long id) {
+    public Boolean delete(Long id) {
         NewsModel news = newsRepository.readById(id);
         if (news.getId() == null) {
             throw new NewsNotFoundException();
@@ -102,17 +107,13 @@ public class NewsService implements Service<NewsDtoResponse> {
     }
 
     private void validate(NewsDtoResponse dto) {
-
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-            Validator validator = validatorFactory.getValidator();
-            Set<ConstraintViolation<NewsDtoResponse>> violations = validator.validate(dto);
-            Optional<ConstraintViolation<NewsDtoResponse>> any = violations.stream().findAny();
-            if (any.isPresent()) {
-                throw new NewsDtoValidationException(
-                        any.get().getPropertyPath().toString(),
-                        any.get().getMessage(),
-                        any.get().getInvalidValue().toString());
-            }
+        Set<ConstraintViolation<NewsDtoResponse>> violations = validator.validate(dto);
+        Optional<ConstraintViolation<NewsDtoResponse>> any = violations.stream().findAny();
+        if (any.isPresent()) {
+            throw new NewsDtoValidationException(
+                    any.get().getPropertyPath().toString(),
+                    any.get().getMessage(),
+                    any.get().getInvalidValue().toString());
         }
     }
 

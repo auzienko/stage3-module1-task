@@ -3,13 +3,13 @@ package com.mjc.school.service;
 import java.util.List;
 
 public interface Service<T> {
-    List<T> findAll();
+    List<T> readAll();
 
-    T findById(Long id);
+    T readBy(Long id);
 
     T create(T object);
 
     T update(T object);
 
-    boolean remove(Long id);
+    Boolean delete(Long id);
 }

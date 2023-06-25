@@ -5,9 +5,9 @@ import com.mjc.school.repository.constant.PropertiesName;
 import com.mjc.school.repository.impl.AuthorRepositoryImpl;
 import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.utils.PropertiesReader;
-import com.mjc.school.service.NewsService;
 import com.mjc.school.service.Service;
 import com.mjc.school.service.dto.NewsDtoResponse;
+import com.mjc.school.service.impl.NewsServiceImpl;
 import com.mjc.school.view.View;
 import com.mjc.school.view.console.ConsoleView;
 
@@ -29,7 +29,7 @@ public class Main {
         AuthorRepositoryImpl authorRepository = new AuthorRepositoryImpl(authorFileName);
         NewsRepositoryImpl newsRepository = new NewsRepositoryImpl(newsFileName);
 
-        Service<NewsDtoResponse> newsService = new NewsService(authorRepository, newsRepository);
+        Service<NewsDtoResponse> newsService = new NewsServiceImpl(authorRepository, newsRepository);
 
         NewsController newsController = new NewsController(newsService);
 

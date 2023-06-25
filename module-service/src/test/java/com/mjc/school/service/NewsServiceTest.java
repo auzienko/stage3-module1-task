@@ -6,6 +6,7 @@ import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.utils.PropertiesReader;
 import com.mjc.school.service.dto.NewsDtoResponse;
 import com.mjc.school.service.exception.NewsNotFoundException;
+import com.mjc.school.service.impl.NewsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NewsServiceTest {
 
-    private NewsService underTest;
+    private NewsServiceImpl underTest;
 
     @BeforeEach
     void init() throws IOException {
@@ -28,21 +29,21 @@ class NewsServiceTest {
         AuthorRepositoryImpl authorRepository = new AuthorRepositoryImpl(authorFileName);
         NewsRepositoryImpl newsRepository = new NewsRepositoryImpl(newsFileName);
 
-        underTest = new NewsService(authorRepository, newsRepository);
+        underTest = new NewsServiceImpl(authorRepository, newsRepository);
     }
 
     @Test
     void findAll() {
         int expectedSize = 20;
 
-        List<NewsDtoResponse> all = underTest.findAll();
+        List<NewsDtoResponse> all = underTest.readAll();
 
         assertEquals(expectedSize, all.size());
     }
 
     @Test
     void findById() {
-        NewsDtoResponse byId = underTest.findById(1L);
+        NewsDtoResponse byId = underTest.readBy(1L);
 
         assertEquals(1L, byId.getId());
     }
@@ -87,13 +88,13 @@ class NewsServiceTest {
     void remove() {
         long entityId = 1L;
 
-        NewsDtoResponse beforeTest = underTest.findById(entityId);
+        NewsDtoResponse beforeTest = underTest.readBy(entityId);
 
-        underTest.remove(entityId);
+        underTest.delete(entityId);
 
         assertThrows(NewsNotFoundException.class,
                 () -> {
-                    underTest.findById(entityId);
+                    underTest.readBy(entityId);
                 });
     }
 }

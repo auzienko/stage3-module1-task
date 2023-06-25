@@ -14,12 +14,12 @@ public class NewsController implements Controller<NewsDtoResponse> {
 
     @Override
     public List<NewsDtoResponse> getAll() {
-        return service.findAll();
+        return service.readAll();
     }
 
     @Override
     public NewsDtoResponse getById(Long id) {
-        return service.findById(id);
+        return service.readBy(id);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class NewsController implements Controller<NewsDtoResponse> {
 
     @Override
     public boolean remove(Long id) {
-        return service.remove(id);
+        return service.delete(id);
     }
 }
 
