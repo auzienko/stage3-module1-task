@@ -1,0 +1,13 @@
+plugins {
+    id("java")
+}
+
+group = "com.mjc.school"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':module-service')
+}

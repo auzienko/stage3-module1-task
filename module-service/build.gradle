@@ -1,0 +1,18 @@
+plugins {
+    id("java")
+}
+
+group = "com.mjc.school"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':module-repository')
+
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+
+    implementation 'org.hibernate:hibernate-validator:8.0.1.Final'
+    implementation 'org.glassfish.expressly:expressly:5.0.0'
+}
