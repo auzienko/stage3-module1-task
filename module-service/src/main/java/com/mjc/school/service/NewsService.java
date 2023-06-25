@@ -1,7 +1,7 @@
 package com.mjc.school.service;
 
-import com.mjc.school.repository.AuthorRepository;
-import com.mjc.school.repository.NewsRepository;
+import com.mjc.school.repository.impl.AuthorRepositoryImpl;
+import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.model.Author;
 import com.mjc.school.repository.model.News;
 import com.mjc.school.service.dto.NewsDtoResponse;
@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public class NewsService implements Service<NewsDtoResponse> {
-    private final AuthorRepository authorRepository;
-    private final NewsRepository newsRepository;
+    private final AuthorRepositoryImpl authorRepository;
+    private final NewsRepositoryImpl newsRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public NewsService(AuthorRepository authorRepository, NewsRepository newsRepository) {
+    public NewsService(AuthorRepositoryImpl authorRepository, NewsRepositoryImpl newsRepository) {
         this.authorRepository = authorRepository;
         this.newsRepository = newsRepository;
     }

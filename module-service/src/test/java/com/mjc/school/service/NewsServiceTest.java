@@ -1,10 +1,8 @@
 package com.mjc.school.service;
 
-import com.mjc.school.repository.AuthorRepository;
-import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.constant.PropertiesName;
-import com.mjc.school.repository.model.Author;
-import com.mjc.school.repository.model.News;
+import com.mjc.school.repository.impl.AuthorRepositoryImpl;
+import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.utils.PropertiesReader;
 import com.mjc.school.service.dto.NewsDtoResponse;
 import com.mjc.school.service.exception.NewsNotFoundException;
@@ -27,8 +25,8 @@ class NewsServiceTest {
         String authorFileName = propertiesReader.getProperties().getProperty(PropertiesName.AUTHOR_FILE);
         String newsFileName = propertiesReader.getProperties().getProperty(PropertiesName.NEWS_FILE);
 
-        AuthorRepository authorRepository = new AuthorRepository(authorFileName, Author.class);
-        NewsRepository newsRepository = new NewsRepository(newsFileName, News.class);
+        AuthorRepositoryImpl authorRepository = new AuthorRepositoryImpl(authorFileName);
+        NewsRepositoryImpl newsRepository = new NewsRepositoryImpl(newsFileName);
 
         underTest = new NewsService(authorRepository, newsRepository);
     }

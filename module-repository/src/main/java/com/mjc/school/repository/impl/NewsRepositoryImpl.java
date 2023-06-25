@@ -1,6 +1,8 @@
-package com.mjc.school.repository;
+package com.mjc.school.repository.impl;
 
+import com.mjc.school.repository.BaseRepository;
 import com.mjc.school.repository.model.BaseEntity;
+import com.mjc.school.repository.model.News;
 import com.mjc.school.repository.utils.YmlReader;
 
 import java.util.ArrayList;
@@ -8,17 +10,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class AbstractRepository<T extends BaseEntity> implements BaseRepository<T> {
-    private List<T> content = new ArrayList<>();
+public class NewsRepositoryImpl implements BaseRepository<News> {
+
+    private List<News> content = new ArrayList<>();
     private final AtomicLong index;
 
-    protected AbstractRepository(String fileName, Class<T> type) {
-        contentInit(fileName, type);
+    public NewsRepositoryImpl(String fileName) {
+        contentInit(fileName);
         index = new AtomicLong(getMaxIndex());
     }
 
-    private void contentInit(String fileName, Class<T> type) {
-        content = YmlReader.getData(fileName, type);
+    private void contentInit(String fileName) {
+        content = YmlReader.getData(fileName, News.class);
     }
 
     private Long getMaxIndex() {
@@ -29,7 +32,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public Optional<T> create(T object) {
+    public Optional<News> create(News object) {
         if (object == null) {
             return Optional.empty();
         }
@@ -39,14 +42,14 @@ public abstract class AbstractRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public List<T> findAll() {
-        List<T> resultList = new ArrayList<>();
+    public List<News> findAll() {
+        List<News> resultList = new ArrayList<>();
         content.forEach(e -> resultList.add(objectClone(e)));
         return resultList;
     }
 
     @Override
-    public Optional<T> findById(Long id) {
+    public Optional<News> findById(Long id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -56,7 +59,7 @@ public abstract class AbstractRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public boolean remove(T object) {
+    public boolean remove(News object) {
         if (object == null) {
             return false;
         }
@@ -64,16 +67,18 @@ public abstract class AbstractRepository<T extends BaseEntity> implements BaseRe
     }
 
     @Override
-    public Optional<T> update(T object) {
+    public Optional<News> update(News object) {
         if (object == null) {
             return Optional.empty();
         }
-        Optional<T> byId = findById(object.getId());
+        Optional<News> byId = findById(object.getId());
         if (byId.isEmpty()) {
             return byId;
         }
         return byId.map(e -> objectClone(object));
     }
 
-    protected abstract T objectClone(T object);
+    protected News objectClone(News object) {
+        return new News(object);
+    }
 }
