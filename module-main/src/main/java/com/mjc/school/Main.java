@@ -2,8 +2,8 @@ package com.mjc.school;
 
 import com.mjc.school.controller.NewsController;
 import com.mjc.school.repository.constant.PropertiesName;
-import com.mjc.school.repository.impl.AuthorDataSourceRepositoryImpl;
-import com.mjc.school.repository.impl.NewsDataSourceRepositoryImpl;
+import com.mjc.school.repository.impl.AuthorRepositoryImpl;
+import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.utils.PropertiesReader;
 import com.mjc.school.service.NewsService;
 import com.mjc.school.service.Service;
@@ -26,8 +26,8 @@ public class Main {
         String authorFileName = propertiesReader.getProperties().getProperty(PropertiesName.AUTHOR_FILE);
         String newsFileName = propertiesReader.getProperties().getProperty(PropertiesName.NEWS_FILE);
 
-        AuthorDataSourceRepositoryImpl authorRepository = new AuthorDataSourceRepositoryImpl(authorFileName);
-        NewsDataSourceRepositoryImpl newsRepository = new NewsDataSourceRepositoryImpl(newsFileName);
+        AuthorRepositoryImpl authorRepository = new AuthorRepositoryImpl(authorFileName);
+        NewsRepositoryImpl newsRepository = new NewsRepositoryImpl(newsFileName);
 
         Service<NewsDtoResponse> newsService = new NewsService(authorRepository, newsRepository);
 

@@ -1,81 +1,85 @@
 package com.mjc.school.repository.impl;
 
 import com.mjc.school.repository.BaseRepository;
+import com.mjc.school.repository.datasourse.DataSource;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.BaseEntity;
-import com.mjc.school.repository.utils.YmlReader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AuthorDataSourceRepositoryImpl implements BaseRepository<AuthorModel> {
-    private List<AuthorModel> content = new ArrayList<>();
+public class AuthorRepositoryImpl implements BaseRepository<AuthorModel> {
+
+    private static final AuthorModel EMPTY = new AuthorModel();
+    private final DataSource<AuthorModel> dataSource;
     private final AtomicLong index;
 
-    public AuthorDataSourceRepositoryImpl(String fileName) {
-        contentInit(fileName);
+    public AuthorRepositoryImpl(String fileName) {
+        dataSource = new DataSource<>(fileName, AuthorModel.class);
         index = new AtomicLong(getMaxIndex());
     }
 
-    private void contentInit(String fileName) {
-        content = YmlReader.getData(fileName, AuthorModel.class);
+    private List<AuthorModel> getContent() {
+        return dataSource.getContent();
     }
 
     private Long getMaxIndex() {
-        return content.stream()
+        return getContent().stream()
                 .map(BaseEntity::getId)
                 .max(Long::compareTo)
                 .orElse(0L);
     }
 
     @Override
-    public Optional<AuthorModel> create(AuthorModel object) {
+    public AuthorModel create(AuthorModel object) {
         if (object == null) {
-            return Optional.empty();
+            return EMPTY;
         }
         object.setId(index.addAndGet(1L));
-        content.add(object);
+        getContent().add(object);
         return readById(object.getId());
     }
 
     @Override
     public List<AuthorModel> readAll() {
         List<AuthorModel> resultList = new ArrayList<>();
-        content.forEach(e -> resultList.add(objectClone(e)));
+        getContent().forEach(e -> resultList.add(objectClone(e)));
         return resultList;
     }
 
     @Override
-    public Optional<AuthorModel> readById(Long id) {
+    public AuthorModel readById(Long id) {
         if (id == null) {
-            return Optional.empty();
+            return EMPTY;
         }
-        return content.stream()
+        return getContent().stream()
                 .filter(e -> e.getId().equals(id))
-                .findAny();
+                .findAny()
+                .orElse(EMPTY);
     }
 
     @Override
-    public boolean delete(AuthorModel object) {
+    public Boolean delete(AuthorModel object) {
         if (object == null) {
             return false;
         }
-        return content.remove(object);
+        return getContent().remove(object);
     }
 
     @Override
-    public Optional<AuthorModel> update(AuthorModel object) {
+    public AuthorModel update(AuthorModel object) {
         if (object == null) {
-            return Optional.empty();
+            return EMPTY;
         }
-        Optional<AuthorModel> byId = readById(object.getId());
-        if (byId.isEmpty()) {
-            return byId;
+        AuthorModel current = readById(object.getId());
+        if (current.getId() == null) {
+            return EMPTY;
         }
-        return byId.map(e -> objectClone(object));
+        current = objectClone(object);
+        return current;
     }
+
     protected AuthorModel objectClone(AuthorModel object) {
         return new AuthorModel(object);
     }

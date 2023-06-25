@@ -1,7 +1,7 @@
 package com.mjc.school.service;
 
-import com.mjc.school.repository.impl.AuthorDataSourceRepositoryImpl;
-import com.mjc.school.repository.impl.NewsDataSourceRepositoryImpl;
+import com.mjc.school.repository.impl.AuthorRepositoryImpl;
+import com.mjc.school.repository.impl.NewsRepositoryImpl;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.service.dto.NewsDtoResponse;
@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public class NewsService implements Service<NewsDtoResponse> {
-    private final AuthorDataSourceRepositoryImpl authorRepository;
-    private final NewsDataSourceRepositoryImpl newsRepository;
+    private final AuthorRepositoryImpl authorRepository;
+    private final NewsRepositoryImpl newsRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public NewsService(AuthorDataSourceRepositoryImpl authorRepository, NewsDataSourceRepositoryImpl newsRepository) {
+    public NewsService(AuthorRepositoryImpl authorRepository, NewsRepositoryImpl newsRepository) {
         this.authorRepository = authorRepository;
         this.newsRepository = newsRepository;
     }
@@ -38,8 +38,10 @@ public class NewsService implements Service<NewsDtoResponse> {
 
     @Override
     public NewsDtoResponse findById(Long id) {
-        NewsModel news = newsRepository.readById(id)
-                .orElseThrow(NewsNotFoundException::new);
+        NewsModel news = newsRepository.readById(id);
+        if (news.getId() == null) {
+            throw new NewsNotFoundException();
+        }
 
         return modelMapper.map(news, NewsDtoResponse.class);
     }
@@ -57,9 +59,10 @@ public class NewsService implements Service<NewsDtoResponse> {
         news.setCreateDate(now);
         news.setLastUpdateDate(now);
 
-        NewsModel added = newsRepository.create(news)
-                .orElseThrow(NewsCreationException::new);
-
+        NewsModel added = newsRepository.create(news);
+        if (added.getId() == null) {
+            throw new NewsCreationException();
+        }
         return findById(added.getId());
     }
 
@@ -70,24 +73,30 @@ public class NewsService implements Service<NewsDtoResponse> {
 
         checkAuthorExist(object);
 
-        NewsModel news = newsRepository.readById(object.getId())
-                .orElseThrow(NewsNotFoundException::new);
+        NewsModel news = newsRepository.readById(object.getId());
+        if(news.getId() == null) {
+            throw new NewsNotFoundException();
+        }
 
         news.setTitle(object.getTitle());
         news.setContent(object.getContent());
         news.setLastUpdateDate(LocalDateTime.now());
         news.setAuthorId(object.getAuthorId());
 
-        NewsModel updated = newsRepository.update(news)
-                .orElseThrow(NewsUpdateException::new);
+        NewsModel updated = newsRepository.update(news);
+        if (updated.getId() == null) {
+            throw new NewsUpdateException();
+        }
 
         return findById(updated.getId());
     }
 
     @Override
     public boolean remove(Long id) {
-        NewsModel news = newsRepository.readById(id)
-                .orElseThrow(NewsNotFoundException::new);
+        NewsModel news = newsRepository.readById(id);
+        if (news.getId() == null) {
+            throw new NewsNotFoundException();
+        }
 
         return newsRepository.delete(news);
     }
@@ -108,8 +117,8 @@ public class NewsService implements Service<NewsDtoResponse> {
     }
 
     private void checkAuthorExist(NewsDtoResponse object) {
-        Optional<AuthorModel> author = authorRepository.readById(object.getAuthorId());
-        if (author.isEmpty()) {
+        AuthorModel author = authorRepository.readById(object.getAuthorId());
+        if (author.getId() == null) {
             throw new AuthorNotFoundException();
         }
     }

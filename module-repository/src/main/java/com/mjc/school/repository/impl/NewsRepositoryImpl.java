@@ -1,81 +1,85 @@
 package com.mjc.school.repository.impl;
 
 import com.mjc.school.repository.BaseRepository;
+import com.mjc.school.repository.datasourse.DataSource;
 import com.mjc.school.repository.model.BaseEntity;
 import com.mjc.school.repository.model.NewsModel;
-import com.mjc.school.repository.utils.YmlReader;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class NewsDataSourceRepositoryImpl implements BaseRepository<NewsModel> {
-
-    private List<NewsModel> content = new ArrayList<>();
+public class NewsRepositoryImpl implements BaseRepository<NewsModel> {
+    private static final NewsModel EMPTY = new NewsModel();
+    private final DataSource<NewsModel> dataSource;
     private final AtomicLong index;
 
-    public NewsDataSourceRepositoryImpl(String fileName) {
-        contentInit(fileName);
+    public NewsRepositoryImpl(String fileName) {
+        dataSource = new DataSource<>(fileName, NewsModel.class);
         index = new AtomicLong(getMaxIndex());
     }
 
-    private void contentInit(String fileName) {
-        content = YmlReader.getData(fileName, NewsModel.class);
+    private List<NewsModel> getContent() {
+        return dataSource.getContent();
     }
 
     private Long getMaxIndex() {
-        return content.stream()
+        return getContent().stream()
                 .map(BaseEntity::getId)
                 .max(Long::compareTo)
                 .orElse(0L);
     }
 
     @Override
-    public Optional<NewsModel> create(NewsModel object) {
+    public NewsModel create(NewsModel object) {
         if (object == null) {
-            return Optional.empty();
+            return EMPTY;
         }
         object.setId(index.addAndGet(1L));
-        content.add(object);
+        getContent().add(object);
         return readById(object.getId());
     }
 
     @Override
     public List<NewsModel> readAll() {
         List<NewsModel> resultList = new ArrayList<>();
-        content.forEach(e -> resultList.add(objectClone(e)));
+        getContent().forEach(e -> resultList.add(objectClone(e)));
         return resultList;
     }
 
     @Override
-    public Optional<NewsModel> readById(Long id) {
+    public NewsModel readById(Long id) {
         if (id == null) {
-            return Optional.empty();
+            return EMPTY;
         }
-        return content.stream()
+
+        return getContent().stream()
                 .filter(e -> e.getId().equals(id))
-                .findAny();
+                .findAny()
+                .orElse(EMPTY);
     }
 
     @Override
-    public boolean delete(NewsModel object) {
+    public Boolean delete(NewsModel object) {
         if (object == null) {
             return false;
         }
-        return content.remove(object);
+        return getContent().remove(object);
     }
 
     @Override
-    public Optional<NewsModel> update(NewsModel object) {
+    public NewsModel update(NewsModel object) {
         if (object == null) {
-            return Optional.empty();
+            return EMPTY;
         }
-        Optional<NewsModel> byId = readById(object.getId());
-        if (byId.isEmpty()) {
-            return byId;
+        NewsModel currentNews = readById(object.getId());
+        if (currentNews.getId() == null) {
+            return EMPTY;
         }
-        return byId.map(e -> objectClone(object));
+
+        currentNews = objectClone(object);
+
+        return currentNews;
     }
 
     protected NewsModel objectClone(NewsModel object) {
