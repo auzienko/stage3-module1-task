@@ -6,11 +6,11 @@ import java.util.Optional;
 public interface BaseRepository<T> {
     Optional<T> create(T object);
 
-    List<T> findAll();
+    List<T> readAll();
 
-    Optional<T> findById(Long id);
+    Optional<T> readById(Long id);
 
-    boolean remove(T object);
+    boolean delete(T object);
 
     Optional<T> update(T object);
 }

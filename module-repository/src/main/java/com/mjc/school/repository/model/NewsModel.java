@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class News extends BaseEntity{
+public class NewsModel extends BaseEntity{
     private String title;
     private String content;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
     private Long authorId;
 
-    public News(News news) {
+    public NewsModel(NewsModel news) {
         setId(news.getId());
         setTitle(news.getTitle());
         setContent(news.getContent());

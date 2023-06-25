@@ -9,10 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Author extends BaseEntity {
+public class AuthorModel extends BaseEntity {
     private String name;
 
-    public Author(Author author) {
+    public AuthorModel(AuthorModel author) {
         setId(author.getId());
         setName(author.getName());
     }

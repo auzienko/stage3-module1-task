@@ -1,7 +1,7 @@
 package com.mjc.school.repository.impl;
 
 import com.mjc.school.repository.BaseRepository;
-import com.mjc.school.repository.model.Author;
+import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.BaseEntity;
 import com.mjc.school.repository.utils.YmlReader;
 
@@ -10,17 +10,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AuthorRepositoryImpl implements BaseRepository<Author> {
-    private List<Author> content = new ArrayList<>();
+public class AuthorDataSourceRepositoryImpl implements BaseRepository<AuthorModel> {
+    private List<AuthorModel> content = new ArrayList<>();
     private final AtomicLong index;
 
-    public AuthorRepositoryImpl(String fileName) {
+    public AuthorDataSourceRepositoryImpl(String fileName) {
         contentInit(fileName);
         index = new AtomicLong(getMaxIndex());
     }
 
     private void contentInit(String fileName) {
-        content = YmlReader.getData(fileName, Author.class);
+        content = YmlReader.getData(fileName, AuthorModel.class);
     }
 
     private Long getMaxIndex() {
@@ -31,24 +31,24 @@ public class AuthorRepositoryImpl implements BaseRepository<Author> {
     }
 
     @Override
-    public Optional<Author> create(Author object) {
+    public Optional<AuthorModel> create(AuthorModel object) {
         if (object == null) {
             return Optional.empty();
         }
         object.setId(index.addAndGet(1L));
         content.add(object);
-        return findById(object.getId());
+        return readById(object.getId());
     }
 
     @Override
-    public List<Author> findAll() {
-        List<Author> resultList = new ArrayList<>();
+    public List<AuthorModel> readAll() {
+        List<AuthorModel> resultList = new ArrayList<>();
         content.forEach(e -> resultList.add(objectClone(e)));
         return resultList;
     }
 
     @Override
-    public Optional<Author> findById(Long id) {
+    public Optional<AuthorModel> readById(Long id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -58,7 +58,7 @@ public class AuthorRepositoryImpl implements BaseRepository<Author> {
     }
 
     @Override
-    public boolean remove(Author object) {
+    public boolean delete(AuthorModel object) {
         if (object == null) {
             return false;
         }
@@ -66,17 +66,17 @@ public class AuthorRepositoryImpl implements BaseRepository<Author> {
     }
 
     @Override
-    public Optional<Author> update(Author object) {
+    public Optional<AuthorModel> update(AuthorModel object) {
         if (object == null) {
             return Optional.empty();
         }
-        Optional<Author> byId = findById(object.getId());
+        Optional<AuthorModel> byId = readById(object.getId());
         if (byId.isEmpty()) {
             return byId;
         }
         return byId.map(e -> objectClone(object));
     }
-    protected Author objectClone(Author object) {
-        return new Author(object);
+    protected AuthorModel objectClone(AuthorModel object) {
+        return new AuthorModel(object);
     }
 }

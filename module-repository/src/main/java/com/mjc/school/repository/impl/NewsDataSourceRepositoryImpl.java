@@ -2,7 +2,7 @@ package com.mjc.school.repository.impl;
 
 import com.mjc.school.repository.BaseRepository;
 import com.mjc.school.repository.model.BaseEntity;
-import com.mjc.school.repository.model.News;
+import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.utils.YmlReader;
 
 import java.util.ArrayList;
@@ -10,18 +10,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class NewsRepositoryImpl implements BaseRepository<News> {
+public class NewsDataSourceRepositoryImpl implements BaseRepository<NewsModel> {
 
-    private List<News> content = new ArrayList<>();
+    private List<NewsModel> content = new ArrayList<>();
     private final AtomicLong index;
 
-    public NewsRepositoryImpl(String fileName) {
+    public NewsDataSourceRepositoryImpl(String fileName) {
         contentInit(fileName);
         index = new AtomicLong(getMaxIndex());
     }
 
     private void contentInit(String fileName) {
-        content = YmlReader.getData(fileName, News.class);
+        content = YmlReader.getData(fileName, NewsModel.class);
     }
 
     private Long getMaxIndex() {
@@ -32,24 +32,24 @@ public class NewsRepositoryImpl implements BaseRepository<News> {
     }
 
     @Override
-    public Optional<News> create(News object) {
+    public Optional<NewsModel> create(NewsModel object) {
         if (object == null) {
             return Optional.empty();
         }
         object.setId(index.addAndGet(1L));
         content.add(object);
-        return findById(object.getId());
+        return readById(object.getId());
     }
 
     @Override
-    public List<News> findAll() {
-        List<News> resultList = new ArrayList<>();
+    public List<NewsModel> readAll() {
+        List<NewsModel> resultList = new ArrayList<>();
         content.forEach(e -> resultList.add(objectClone(e)));
         return resultList;
     }
 
     @Override
-    public Optional<News> findById(Long id) {
+    public Optional<NewsModel> readById(Long id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -59,7 +59,7 @@ public class NewsRepositoryImpl implements BaseRepository<News> {
     }
 
     @Override
-    public boolean remove(News object) {
+    public boolean delete(NewsModel object) {
         if (object == null) {
             return false;
         }
@@ -67,18 +67,18 @@ public class NewsRepositoryImpl implements BaseRepository<News> {
     }
 
     @Override
-    public Optional<News> update(News object) {
+    public Optional<NewsModel> update(NewsModel object) {
         if (object == null) {
             return Optional.empty();
         }
-        Optional<News> byId = findById(object.getId());
+        Optional<NewsModel> byId = readById(object.getId());
         if (byId.isEmpty()) {
             return byId;
         }
         return byId.map(e -> objectClone(object));
     }
 
-    protected News objectClone(News object) {
-        return new News(object);
+    protected NewsModel objectClone(NewsModel object) {
+        return new NewsModel(object);
     }
 }

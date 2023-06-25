@@ -1,9 +1,9 @@
 package com.mjc.school.service;
 
-import com.mjc.school.repository.impl.AuthorRepositoryImpl;
-import com.mjc.school.repository.impl.NewsRepositoryImpl;
-import com.mjc.school.repository.model.Author;
-import com.mjc.school.repository.model.News;
+import com.mjc.school.repository.impl.AuthorDataSourceRepositoryImpl;
+import com.mjc.school.repository.impl.NewsDataSourceRepositoryImpl;
+import com.mjc.school.repository.model.AuthorModel;
+import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.service.dto.NewsDtoResponse;
 import com.mjc.school.service.exception.*;
 import jakarta.validation.ConstraintViolation;
@@ -18,11 +18,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public class NewsService implements Service<NewsDtoResponse> {
-    private final AuthorRepositoryImpl authorRepository;
-    private final NewsRepositoryImpl newsRepository;
+    private final AuthorDataSourceRepositoryImpl authorRepository;
+    private final NewsDataSourceRepositoryImpl newsRepository;
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public NewsService(AuthorRepositoryImpl authorRepository, NewsRepositoryImpl newsRepository) {
+    public NewsService(AuthorDataSourceRepositoryImpl authorRepository, NewsDataSourceRepositoryImpl newsRepository) {
         this.authorRepository = authorRepository;
         this.newsRepository = newsRepository;
     }
@@ -30,7 +30,7 @@ public class NewsService implements Service<NewsDtoResponse> {
     @Override
     public List<NewsDtoResponse> findAll() {
 
-        return newsRepository.findAll()
+        return newsRepository.readAll()
                 .stream()
                 .map(e -> modelMapper.map(e, NewsDtoResponse.class))
                 .toList();
@@ -38,7 +38,7 @@ public class NewsService implements Service<NewsDtoResponse> {
 
     @Override
     public NewsDtoResponse findById(Long id) {
-        News news = newsRepository.findById(id)
+        NewsModel news = newsRepository.readById(id)
                 .orElseThrow(NewsNotFoundException::new);
 
         return modelMapper.map(news, NewsDtoResponse.class);
@@ -51,13 +51,13 @@ public class NewsService implements Service<NewsDtoResponse> {
         checkAuthorExist(object);
         dtoIdMustBeNull(object);
 
-        News news = modelMapper.map(object, News.class);
+        NewsModel news = modelMapper.map(object, NewsModel.class);
 
         LocalDateTime now = LocalDateTime.now();
         news.setCreateDate(now);
         news.setLastUpdateDate(now);
 
-        News added = newsRepository.create(news)
+        NewsModel added = newsRepository.create(news)
                 .orElseThrow(NewsCreationException::new);
 
         return findById(added.getId());
@@ -70,7 +70,7 @@ public class NewsService implements Service<NewsDtoResponse> {
 
         checkAuthorExist(object);
 
-        News news = newsRepository.findById(object.getId())
+        NewsModel news = newsRepository.readById(object.getId())
                 .orElseThrow(NewsNotFoundException::new);
 
         news.setTitle(object.getTitle());
@@ -78,7 +78,7 @@ public class NewsService implements Service<NewsDtoResponse> {
         news.setLastUpdateDate(LocalDateTime.now());
         news.setAuthorId(object.getAuthorId());
 
-        News updated = newsRepository.update(news)
+        NewsModel updated = newsRepository.update(news)
                 .orElseThrow(NewsUpdateException::new);
 
         return findById(updated.getId());
@@ -86,10 +86,10 @@ public class NewsService implements Service<NewsDtoResponse> {
 
     @Override
     public boolean remove(Long id) {
-        News news = newsRepository.findById(id)
+        NewsModel news = newsRepository.readById(id)
                 .orElseThrow(NewsNotFoundException::new);
 
-        return newsRepository.remove(news);
+        return newsRepository.delete(news);
     }
 
     private void validate(NewsDtoResponse dto) {
@@ -108,7 +108,7 @@ public class NewsService implements Service<NewsDtoResponse> {
     }
 
     private void checkAuthorExist(NewsDtoResponse object) {
-        Optional<Author> author = authorRepository.findById(object.getAuthorId());
+        Optional<AuthorModel> author = authorRepository.readById(object.getAuthorId());
         if (author.isEmpty()) {
             throw new AuthorNotFoundException();
         }
