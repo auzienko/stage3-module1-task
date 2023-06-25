@@ -9,7 +9,7 @@ public interface BaseRepository<T> {
 
     T readById(Long id);
 
-    Boolean delete(T object);
+    Boolean delete(Long id);
 
     T update(T object);
 }

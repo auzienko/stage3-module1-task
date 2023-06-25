@@ -98,7 +98,7 @@ public class NewsService implements Service<NewsDtoResponse> {
             throw new NewsNotFoundException();
         }
 
-        return newsRepository.delete(news);
+        return newsRepository.delete(id);
     }
 
     private void validate(NewsDtoResponse dto) {

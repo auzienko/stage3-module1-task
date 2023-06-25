@@ -7,6 +7,7 @@ import com.mjc.school.repository.model.NewsModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class NewsRepositoryImpl implements BaseRepository<NewsModel> {
@@ -60,11 +61,15 @@ public class NewsRepositoryImpl implements BaseRepository<NewsModel> {
     }
 
     @Override
-    public Boolean delete(NewsModel object) {
-        if (object == null) {
+    public Boolean delete(Long id) {
+        if (id == null) {
             return false;
         }
-        return getContent().remove(object);
+        Optional<NewsModel> any = getContent().stream()
+                .filter(e -> e.getId().equals(id)).findAny();
+
+        return any.map(e -> getContent().remove(e))
+                .orElse(false);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.mjc.school.repository.model.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AuthorRepositoryImpl implements BaseRepository<AuthorModel> {
@@ -60,11 +61,17 @@ public class AuthorRepositoryImpl implements BaseRepository<AuthorModel> {
     }
 
     @Override
-    public Boolean delete(AuthorModel object) {
-        if (object == null) {
+    public Boolean delete(Long id) {
+        if (id == null) {
             return false;
         }
-        return getContent().remove(object);
+
+        Optional<AuthorModel> any = getContent().stream()
+                .filter(e -> e.getId().equals(id)).findAny();
+
+        return any.map(e -> getContent().remove(e))
+                .orElse(false);
+
     }
 
     @Override
